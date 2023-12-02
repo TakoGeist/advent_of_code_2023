@@ -5,21 +5,17 @@ const BLUE: usize = 14;
 
 
 fn conundrum(input: &str) -> usize{
-    let mut res = 0;
-    'out: for (num, game) in input.lines().map(|line| line.split(":").nth(1).unwrap()).enumerate(){
-        for set in game.split(";").map(|x| x.trim().split(",")){
-            for dice in set{
+    input.lines().enumerate().map(|(id, line)| (id,line.split(":").nth(1).unwrap()))
+        .map(|(id, game)| (id,game.replace(";", ",").split(",")
+            .fold(true, |acc, dice| {
                 match dice.trim().split_once(" "){
-                    Some((num, "red")) => if num.parse::<usize>().unwrap() > RED {continue 'out;}
-                    Some((num, "green")) => if num.parse::<usize>().unwrap() > GREEN {continue 'out;}
-                    Some((num, "blue")) => if num.parse::<usize>().unwrap() > BLUE {continue 'out;}
+                    Some((num, "red")) => acc && num.parse::<usize>().unwrap() <= RED,
+                    Some((num, "green")) => acc && num.parse::<usize>().unwrap() <= GREEN, 
+                    Some((num, "blue")) => acc && num.parse::<usize>().unwrap() <= BLUE,
                     _ => panic!("Unexpected color value")
                 }
-            }
-        }
-        res += num + 1;
-    }
-    res
+            })))
+        .fold(0, |acc, (num, x)| if x {acc + num + 1} else {acc})
 }
 
 fn main(){

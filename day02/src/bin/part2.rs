@@ -1,21 +1,16 @@
 
 fn conundrum(input: &str) -> usize{
-    let mut res = 0;
-    for game in input.lines().map(|line| line.split(":").nth(1).unwrap()){
-        let (mut red, mut green, mut blue) = (0,0,0);
-        for set in game.split(";").map(|x| x.trim().split(",")){
-            for dice in set{
-                match dice.trim().split_once(" "){
-                    Some((num, "red")) => if num.parse::<usize>().unwrap() > red {red = num.parse::<usize>().unwrap();}
-                    Some((num, "green")) => if num.parse::<usize>().unwrap() > green {green = num.parse::<usize>().unwrap();}
-                    Some((num, "blue")) => if num.parse::<usize>().unwrap() > blue {blue = num.parse::<usize>().unwrap();}
-                    _ => panic!("Unexpected color value")
-                }
+    input.lines().map(|line| line.split(":").nth(1).unwrap())
+    .map(|game| game.replace(";", ",").split(",")
+        .fold((0,0,0), |(red, green, blue), dice| {
+            match dice.trim().split_once(" "){
+                Some((num, "red")) => if num.parse::<usize>().unwrap() > red {(num.parse::<usize>().unwrap(), green, blue)} else {(red, green, blue)}
+                Some((num, "green")) => if num.parse::<usize>().unwrap() > green {(red, num.parse::<usize>().unwrap(), blue)} else {(red, green, blue)}
+                Some((num, "blue")) => if num.parse::<usize>().unwrap() > blue {(red, green, num.parse::<usize>().unwrap())} else {(red, green, blue)}
+                _ => panic!("Unexpected color value")
             }
-        }
-        res += red * green * blue;
-    }
-    res
+        }))
+    .fold(0, |acc, (red, green, blue)| acc + red * green * blue)
 }
 
 fn main(){
