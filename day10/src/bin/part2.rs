@@ -26,21 +26,23 @@ fn maze(input: &str) -> isize{
     let mut vertices = vec![(start / line, start % line)];
 
     while maze[current] != 'S'{
+        vertices.push((current / line, current % line));
         match (maze[current], from){
-            ('|', Direction::Up) => {vertices.push((current / line, current % line));current -= line}
-            ('|', Direction::Down) => {vertices.push((current / line, current % line));current += line}
-            ('-', Direction::Right) => {vertices.push((current / line, current % line));current += 1}
-            ('-', Direction::Left) => {vertices.push((current / line, current % line));current -= 1}
-            ('7', Direction::Up) | ('J', Direction::Down) => {vertices.push((current / line, current % line)); current -= 1; from = Direction::Left}
-            ('7', Direction::Right) | ('F', Direction::Left) => {vertices.push((current / line, current % line)); current += line; from = Direction::Down}
-            ('L', Direction::Down) | ('F', Direction::Up) => {vertices.push((current / line, current % line)); current += 1; from = Direction::Right}
-            ('L', Direction::Left) | ('J', Direction::Right) => {vertices.push((current / line, current % line)); current -= line; from = Direction::Up}
+            ('|', Direction::Up) => current -= line,
+            ('|', Direction::Down) => current += line,
+            ('-', Direction::Right) => current += 1,
+            ('-', Direction::Left) => current -= 1,
+            ('7', Direction::Up) | ('J', Direction::Down) => { current -= 1; from = Direction::Left}
+            ('7', Direction::Right) | ('F', Direction::Left) => { current += line; from = Direction::Down}
+            ('L', Direction::Down) | ('F', Direction::Up) => { current += 1; from = Direction::Right}
+            ('L', Direction::Left) | ('J', Direction::Right) => { current -= line; from = Direction::Up}
             _ => panic!(),
         }
     }
 
-    (0..vertices.len()).map(|x| (*vertices.get(x).unwrap(), *vertices.get(x + 1).or(vertices.get(0)).unwrap()))
-    .map(|(i, j)| i.0 as isize * j.1 as isize - i.1 as isize * j.0 as isize)
+    (0..vertices.len()).map(|x| 
+        (*vertices.get(x).unwrap(), *vertices.get(x + 1).or(vertices.get(0)).unwrap()))
+    .map(|(i, j)| (i.0 * j.1) as isize - (i.1 * j.0) as isize)
     .sum::<isize>().abs() / 2 + 1 - vertices.len() as isize / 2
 }
 
